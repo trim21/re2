@@ -10,11 +10,6 @@ from typing import (
 
 from typing_extensions import TypeAlias
 
-# References:
-# - https://github.com/google/re2/blob/main/re2/re2.h and
-# - https://github.com/python/typeshed/blob/main/stdlib/re.pyi
-# - and re2 implementation
-
 _T = TypeVar("_T")
 
 __Pattern: TypeAlias = Regexp[str] | str | Regexp[bytes] | bytes

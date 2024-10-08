@@ -60,14 +60,14 @@ class Options(_re2.RE2.Options):
 
 
 def compile(pattern, options=None):
-  if isinstance(pattern, _Regexp):
+  if isinstance(pattern, Regexp):
     if options:
       raise error('pattern is already compiled, so '
                   'options may not be specified')
     pattern = pattern._pattern
   options = options or Options()
   values = tuple(getattr(options, name) for name in Options.NAMES)
-  return _Regexp._make(pattern, values)
+  return Regexp._make(pattern, values)
 
 
 def search(pattern, text, options=None):
@@ -122,14 +122,14 @@ def escape(pattern):
 
 
 def purge():
-  return _Regexp._make.cache_clear()
+  return Regexp._make.cache_clear()
 
 
 _Anchor = _re2.RE2.Anchor
 _NULL_SPAN = (-1, -1)
 
 
-class _Regexp(object):
+class Regexp(object):
 
   __slots__ = ('_pattern', '_regexp')
 
@@ -161,7 +161,7 @@ class _Regexp(object):
   def __setstate__(self, state):
     pattern, options = state
     values = tuple(options[name] for name in Options.NAMES)
-    other = _Regexp._make(pattern, values)
+    other = Regexp._make(pattern, values)
     self._pattern = other._pattern
     self._regexp = other._regexp
 
@@ -209,7 +209,7 @@ class _Regexp(object):
           return decoded_offsets[span[0]], decoded_offsets[span[1]]
 
         decoded_spans = [decode(span) for span in spans]
-        yield _Match(self, text, pos, endpos, decoded_spans)
+        yield Match(self, text, pos, endpos, decoded_spans)
         if encoded_pos == encoded_endpos:
           break
         elif encoded_pos == spans[0][1]:
@@ -223,7 +223,7 @@ class _Regexp(object):
         spans = self._regexp.Match(anchor, text, pos, endpos)
         if spans[0] == _NULL_SPAN:
           break
-        yield _Match(self, text, pos, endpos, spans)
+        yield Match(self, text, pos, endpos, spans)
         if pos == endpos:
           break
         elif pos == spans[0][1]:
@@ -336,7 +336,7 @@ class _Regexp(object):
     return min, max
 
 
-class _Match(object):
+class Match(object):
 
   __slots__ = ('_regexp', '_text', '_pos', '_endpos', '_spans')
 
@@ -577,7 +577,7 @@ class Filter(object):
   def re(self, index):
     if not 0 <= index < len(self._patterns):
       raise IndexError('bad index')
-    proxy = object.__new__(_Regexp)
+    proxy = object.__new__(Regexp)
     proxy._pattern = self._patterns[index]
     proxy._regexp = self._filter.GetRE2(index)
     return proxy
